@@ -12,6 +12,10 @@ execute_process(COMMAND
   ${PYTHON_EXECUTABLE} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()"
   OUTPUT_VARIABLE PYTHON_SITE_PACKAGES OUTPUT_STRIP_TRAILING_WHITESPACE)
 
+execute_process(COMMAND
+  ${PYTHON_EXECUTABLE} -c "import numpy; print numpy.get_include()"
+  OUTPUT_VARIABLE PYTHON_NUMPY_INCLUDE_DIR OUTPUT_STRIP_TRAILING_WHITESPACE)
+
 # How to Cython the .pyx file
 add_custom_command(OUTPUT freenect.c
   COMMAND ${CYTHON_EXECUTABLE} -o freenect.c "${CMAKE_CURRENT_SOURCE_DIR}/freenect.pyx")
@@ -23,8 +27,8 @@ set_target_properties(cython_freenect PROPERTIES
   PREFIX ""
   OUTPUT_NAME "freenect"
   LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
-target_link_libraries(cython_freenect freenect_sync)
-include_directories(${PYTHON_INCLUDE_PATH} ../c_sync/)
+target_link_libraries(cython_freenect freenect_sync ${PYTHON_LIBRARY})
+include_directories(${PYTHON_INCLUDE_PATH} ../c_sync/ ${PYTHON_NUMPY_INCLUDE_DIR} )
 
 # Install the extension
 install(TARGETS cython_freenect
